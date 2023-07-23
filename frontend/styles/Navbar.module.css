@@ -1,0 +1,35 @@
+@keyframes openSidebar {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes closeSidebar {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.open_sidebar {
+  animation: openSidebar 0.3s forwards;
+}
+
+.close_sidebar {
+  animation: closeSidebar 0.4s forwards;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999; 
+}
