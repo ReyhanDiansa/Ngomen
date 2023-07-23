@@ -1,11 +1,11 @@
-![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
+![Logo](https://github.com/ReyhanDiansa/Ngomen/blob/main/frontend/public/logo/logo.svg)
 
 
 Ngomen is a platform that offers a unique experience for movie and music enthusiasts. It is the perfect destination for those who love to explore and discuss their favorite films and songs. Whether you're seeking reviews, critiques, or lively conversations, Ngomen provides a vibrant community where you can immerse yourself in the world of entertainment. Our website features a vast collection of movies and music sourced from renowned APIs like TMDB and Last.fm, ensuring you'll never run out of exciting content to discover.Ngomen is where your opinions matter and your voice is heard!
 
 ## Documentation
 
-![App Screenshot](https://github.com/ReyhanDiansa/KonterAttack/blob/main/public/assets/images/ss.png)
+![App Screenshot](https://github.com/ReyhanDiansa/Ngomen/blob/main/frontend/public/ss_mockup/ss_mockup.png)
 
 ## Deployment
 
@@ -23,9 +23,9 @@ Deployment link:
 - Music API from last.fm
 - MongoDB
 
-[Klik For more Frontend Documentation](https://github.com/ReyhanDiansa/Ngomen/frontend)
+[Klik For more Frontend Documentation](https://github.com/ReyhanDiansa/Ngomen/tree/main/frontend)
 
-[Klik For more Backend Documentation](https://github.com/ReyhanDiansa/Ngomen/backend)
+[Klik For more Backend Documentation](https://github.com/ReyhanDiansa/Ngomen/tree/main/backend)
 
 ## Contact
 
