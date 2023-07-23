@@ -40,7 +40,7 @@ Install package with npm
 
 ## Documentation
 
-![App Screenshot](https://github.com/ReyhanDiansa/KonterAttack/blob/main/public/assets/images/ss.png)
+![App Screenshot](https://github.com/ReyhanDiansa/Ngomen/blob/main/frontend/public/ss_mockup/ss_mockup.png)
 
 
 ## Contact
