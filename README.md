@@ -1,5 +1,9 @@
-![Logo](https://github.com/ReyhanDiansa/Ngomen/blob/main/frontend/public/logo/logo.svg)
-
+<p align="center">
+    <picture>
+      <source media="(prefers-color-scheme: white)" srcset="https://github.com/ReyhanDiansa/Ngomen/blob/main/frontend/public/logo/logo.svg">
+      <img src="https://github.com/ReyhanDiansa/Ngomen/blob/main/frontend/public/logo/logo.svg" height="128">
+    </picture>
+</p>
 
 Ngomen is a platform that offers a unique experience for movie and music enthusiasts. It is the perfect destination for those who love to explore and discuss their favorite films and songs. Whether you're seeking reviews, critiques, or lively conversations, Ngomen provides a vibrant community where you can immerse yourself in the world of entertainment. Our website features a vast collection of movies and music sourced from renowned APIs like TMDB and Last.fm, ensuring you'll never run out of exciting content to discover.Ngomen is where your opinions matter and your voice is heard!
 
