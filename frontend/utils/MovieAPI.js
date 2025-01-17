@@ -46,15 +46,15 @@ export const GetMovieDetail = async ({ movieId }) => {
   };
   try {
     const response = await axios.get(url, options);
-    return { data: response };
+    return { success: true, data: response };
   } catch (error) {
     console.error(error);
-    return { error: "Failed to fetch data" };
+    return { success: false, error: "Failed to fetch data" };
   }
 };
 
-export const GetReviewByMovieId = async ({ movieId }) => {
-  const url = `${process.env.NEXT_PUBLIC_API_HOST}/filmRev/findByMovieId`;
+export const GetReviewByMovieId = async ({ movieId, currentPage }) => {
+  const url = `${process.env.NEXT_PUBLIC_API_HOST}/filmRev/findByMovieId?page=${currentPage}`;
   const dataMovie = {
     movie_id: movieId,
   };
@@ -120,7 +120,7 @@ export const CheckMovieReview = async ({ movieId }) => {
     const checkPerm = await axios.post(url, data);
     // console.log(checkPerm.data.add_permission);
     if (checkPerm.data.success === true) {
-      return { data: checkPerm.data};
+      return { data: checkPerm.data };
     } else {
       return { data: checkPerm.data };
     }
@@ -129,7 +129,7 @@ export const CheckMovieReview = async ({ movieId }) => {
   }
 };
 
-export const GetAllMovie = async ({moviePage}) => {
+export const GetAllMovie = async ({ moviePage }) => {
   const url = `${process.env.NEXT_PUBLIC_API_MOVIE}/discover/movie?page=${moviePage}`;
   const options = {
     headers: {
@@ -144,9 +144,9 @@ export const GetAllMovie = async ({moviePage}) => {
     console.error(error);
     return { error: "Failed to fetch data" };
   }
-}
+};
 
-export const GetMovieByTitle = async ({movieKeyword}) => {
+export const GetMovieByTitle = async ({ movieKeyword }) => {
   const url = `${process.env.NEXT_PUBLIC_API_MOVIE}/search/movie?query=${movieKeyword}`;
   const options = {
     headers: {
@@ -161,4 +161,4 @@ export const GetMovieByTitle = async ({movieKeyword}) => {
     console.error(error);
     return { error: "Failed to fetch data" };
   }
-}
+};

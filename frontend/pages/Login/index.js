@@ -6,6 +6,8 @@ import { UserLogin } from "../../utils/LoginApi";
 import { useRouter } from "next/router";
 import SpinnerLoading from "@/components/Loading/SpinnerLoading";
 import Head from "next/head";
+import Link from "next/link";
+import { FiArrowLeft } from "react-icons/fi";
 
 const googleLogin = () => {
   const [isError, setIsError] = useState(false);
@@ -58,6 +60,8 @@ const googleLogin = () => {
 const index = () => {
   const date = new Date();
   const year = date.getFullYear();
+  const router = useRouter();
+
   return (
     <>
       <Head>
@@ -74,8 +78,8 @@ const index = () => {
           content="Login to our dynamic movie and music review platform and become part of a passionate community of film and music lovers. Share your thoughts, critiques, and comments on your favorite movies and songs sourced from TMDB API and Last.fm API. Join us now to rate and review the latest releases, engage in meaningful discussions, and be a part of an exciting world of entertainment!"
         />
       </Head>
-      <div className="w-full h-full">
-        <div className="bg-white rounded-md flex flex-col-reverse md:flex-row w-10/12 md:w-8/12 my-20 md:h-[35rem] mx-auto justify-between">
+      <div className="w-full bg-white h-full">
+        <div className="bg-white border-2 shadow-md  rounded-md flex flex-col-reverse md:flex-row w-10/12 md:w-8/12 my-20 md:h-[35rem] mx-auto justify-between">
           <div className="w-full md:w-6/12 flex flex-col my-7 items-center justify-center ">
             <div className="mx-auto my-4">
               <Image src={"/logo/black.svg"} width={200} height={200} />
@@ -89,6 +93,13 @@ const index = () => {
             </div>
             <div className="mx-auto  md:w-5/12 justify-center flex flex-col my-14">
               {googleLogin()}
+            </div>
+            <div
+              className="text-xs flex items-center cursor-pointer underline underline-offset-2 gap-1 md:gap-2 text-blue-600"
+              onClick={() => router.push("/")}
+            >
+              {/* <FiArrowLeft /> */}
+              <p>Back to Home</p>
             </div>
             <div className="text-sm text-gray-500">
               <p>© {year} Ngomen All rights reserved.</p>

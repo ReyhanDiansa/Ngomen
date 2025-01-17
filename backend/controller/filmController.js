@@ -59,28 +59,61 @@ exports.addReview = async (request, response) => {
 
 exports.getMovieRev = async (request, response) => {
   try {
-    const movReview = await FilmModel.find();
-    if (movReview.length === 0) {
+    const { page = 1, limit = 10 } = request.query;
+    const skip = (page - 1) * limit;
+
+    const movReview = await FilmModel.find()
+      .skip(skip)
+      .limit(limit);
+
+    const countTotalReviews = await FilmModel.countDocuments();
+
+    if (countTotalReviews === 0) {
       return response
         .status(200)
         .json({ message: "tidak ada review", success: false });
     }
 
-    const data = [];
+    const data = await Promise.all(
+      movReview.map(async (review) => {
+        const user = await userModel.findOne({ googleId: review.user_id });
+        return { review, user };
+      })
+    );
 
-    for (const review of movReview) {
-      const user = await userModel.findOne({
-        googleId: review.user_id,
+    const totalPages = Math.ceil(countTotalReviews / limit);
+
+    if (page > totalPages) {
+      return response.status(400).json({
+        message: "Page exceed total pages",
+        success: false,
       });
-      const reviewAndUser = { review: review, user: user };
-      data.push(reviewAndUser);
     }
 
-    response.status(200).json({ data, success: true });
+    const meta = {
+      total_items: parseInt(countTotalReviews),
+      current_page: parseInt(page),
+      total_pages: parseInt(totalPages),
+      per_page: parseInt(limit),
+    };
+
+    const result = {
+      data,
+      meta,
+    };
+
+    return response
+      .status(200)
+      .json({
+        result,
+        message: "sukses menampilkan data",
+        success: true,
+      });
   } catch (error) {
-    response.status(400).json({ message: error, success: false });
+    return response.status(500).json({ message: error.message, success: false });
   }
 };
+
 
 exports.findMovieRev = async (request, response) => {
   try {
@@ -96,9 +129,9 @@ exports.findMovieRev = async (request, response) => {
     });
     const data = { review: movReview, user: user };
 
-    response.status(200).json({ data, success: true });
+    return response.status(200).json({ data, success: true });
   } catch (error) {
-    response.status(400).json({ message: error, success: false });
+    return response.status(400).json({ message: error, success: false });
   }
 };
 
@@ -112,12 +145,10 @@ exports.updateFilmRev = async (request, response) => {
     const { id } = request.params;
     const find = await FilmModel.findOne({ _id: id });
     if (!find) {
-      return response
-        .status(200)
-        .json({
-          message: `Cannot find any data with ID ${id}`,
-          success: false,
-        });
+      return response.status(200).json({
+        message: `Cannot find any data with ID ${id}`,
+        success: false,
+      });
     }
     let data = {
       user_id: request.body.user_id,
@@ -135,7 +166,7 @@ exports.updateFilmRev = async (request, response) => {
       success: true,
     });
   } catch (error) {
-    response.status(400).json({ message: error.message, success: false });
+    return response.status(400).json({ message: error.message, success: false });
   }
 };
 
@@ -145,12 +176,10 @@ exports.deleteMovieRev = async (request, response) => {
     const deleteRev = await FilmModel.findByIdAndDelete(id);
 
     if (!deleteRev) {
-      return response
-        .status(200)
-        .json({
-          message: `Cannot find any movie with that id`,
-          success: false,
-        });
+      return response.status(200).json({
+        message: `Cannot find any movie with that id`,
+        success: false,
+      });
     }
 
     response
@@ -190,54 +219,131 @@ exports.checkReview = async (request, response) => {
 
 exports.getMovieRevById = async (request, response) => {
   try {
-    const movie_id = request.body.movie_id;
-    const movReview = await FilmModel.find({ movie_id: movie_id });
-    if (movReview.length === 0) {
+    const { movie_id } = request.body;
+    const { page = 1, limit = 10 } = request.query;
+    const skip = (page - 1) * limit;
+
+    // Fetch reviews with pagination
+    const movReview = await FilmModel.find({ movie_id })
+      .skip(skip)
+      .limit(limit);
+    
+    const countMovReview = await FilmModel.countDocuments({movie_id})
+
+    if (countMovReview === 0) {
       return response
         .status(200)
         .json({ message: "tidak ada review", success: false });
     }
-    const data = [];
 
-    for (const review of movReview) {
-      const user = await userModel.findOne({
-        googleId: review.user_id,
+    // Manually populate user based on googleId
+    const data = await Promise.all(
+      movReview.map(async (review) => {
+        const user = await userModel.findOne({ googleId: review.user_id });
+        return { review, user };
+      })
+    );
+
+    // Calculate average rate
+    const avgRateData = await FilmModel.aggregate([
+      { $match: { movie_id } },
+      { $group: { _id: null, averageRate: { $avg: "$rate" } } },
+    ]);
+
+    const averageRate = parseFloat(avgRateData[0]?.averageRate).toFixed(1) || 0;
+    const totalPages = Math.ceil(countMovReview / limit);
+    
+    if (page > totalPages) {
+      return response.status(400).json({
+        message: "Page exceed total pages",
+        success: false,
       });
-      const reviewAndUser = { review: review, user: user };
-      data.push(reviewAndUser);
     }
 
-    response
-      .status(200)
-      .json({ data, message: "sukses menampilkan data", success: true });
+    const meta = {
+      total_items: parseInt(countMovReview),
+      current_page:parseInt(page),
+      total_pages:parseInt(totalPages),
+      per_page: parseInt(limit)
+    }
+
+    const result = {
+      data,
+      meta
+    }
+
+    return response.status(200).json({
+      result,
+      averageRate: parseFloat(averageRate),
+      message: "sukses menampilkan data",
+      success: true,
+    });
   } catch (error) {
-    response.status(400).json({ message: error, success: false });
+    return response.status(500).json({ message: error.message, success: false });
   }
 };
 
 exports.getMovieRevByIdUser = async (request, response) => {
   try {
     const user_id = request.body.user_id;
-    const movReview = await FilmModel.find({ user_id: user_id });
-    if (movReview.length === 0) {
+    const { page = 1, limit = 10 } = request.query;
+    const skip = (page - 1) * limit;
+
+    const movReview = await FilmModel.find({ user_id: user_id })
+      .skip(skip)
+      .limit(limit);
+
+    const countUserReview = await FilmModel.countDocuments({ user_id: user_id });
+
+    if (countUserReview === 0) {
       return response
         .status(200)
         .json({ message: "tidak ada review", success: false });
     }
-    const data = [];
 
-    for (const review of movReview) {
-      const user = await userModel.findOne({
-        googleId: review.user_id,
+    const data = await Promise.all(
+      movReview.map(async (review) => {
+        const user = await userModel.findOne({ googleId: review.user_id });
+        return { review, user };
+      })
+    );
+
+    const avgRateData = await FilmModel.aggregate([
+      { $match: { user_id: user_id } },
+      { $group: { _id: null, averageRate: { $avg: "$rate" } } },
+    ]);
+
+    const averageRate = parseFloat(avgRateData[0]?.averageRate).toFixed(1) || 0;
+    const totalPages = Math.ceil(countUserReview / limit);
+
+    if (page > totalPages) {
+      return response.status(400).json({
+        message: "Page exceed total pages",
+        success: false,
       });
-      const reviewAndUser = { review: review, user: user };
-      data.push(reviewAndUser);
     }
 
-    response
+    const meta = {
+      total_items: parseInt(countUserReview),
+      current_page: parseInt(page),
+      total_pages: parseInt(totalPages),
+      per_page: parseInt(limit),
+    };
+
+    const result = {
+      data,
+      meta,
+    };
+
+    return response
       .status(200)
-      .json({ data, message: "sukses menampilkan data", success: true });
+      .json({
+        result,
+        averageRate: parseFloat(averageRate),
+        message: "sukses menampilkan data",
+        success: true,
+      });
   } catch (error) {
-    response.status(400).json({ message: error, success: false });
+    return response.status(500).json({ message: error.message, success: false });
   }
 };

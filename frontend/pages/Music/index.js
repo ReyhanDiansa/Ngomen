@@ -6,24 +6,29 @@ import MusicCard from "@/components/MusicCard/MusicCard";
 import SpinnerLoading from "@/components/Loading/SpinnerLoading";
 import Footer from "@/components/Footer/Footer";
 import Head from "next/head";
+import { Pagination } from "@nextui-org/react";
 
 const index = () => {
   const [trending, setTrending] = useState();
   const [detailPop, setDetailPop] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(50);
   const [keyword, setKeyword] = useState("");
 
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
       if (keyword === "") {
         const { data } = await GetAllMusic({ musicPage: currentPage });
-        setTrending(data?.data?.tracks?.track);
+        const skip = (currentPage - 1) * 15;
+        
+        let response;
+        if (data?.data?.tracks?.track?.length > 15) {
+          response = data?.data?.tracks?.track.slice(skip, skip + 15);
+        } else {
+          response = data?.data?.tracks?.track;
+        }
+        setTrending(response);
       } else {
         const { data } = await GetMusicByTitle({ musicKeyword: keyword });
         setTrending(data?.data?.results?.trackmatches?.track);
@@ -59,84 +64,6 @@ const index = () => {
     setCurrentPage(pageNumber);
   };
 
-  const RenderPageButtons = () => {
-    const pageButtons = [];
-
-    let startPage = Math.max(1, currentPage - 1);
-    let endPage = Math.min(totalPages, currentPage + 1);
-
-    if (startPage === 2) {
-      pageButtons.push(
-        <button
-          key={1}
-          onClick={() => handlePageChange(1)}
-          className="p-3 bg-[#EB4A4A] text-white border-none ml-2 rounded-sm cursor-pointer"
-        >
-          1
-        </button>
-      );
-    } else if (startPage > 2) {
-      pageButtons.push(
-        <button
-          key={1}
-          onClick={() => handlePageChange(1)}
-          className="p-3 bg-[#EB4A4A] text-white border-none ml-2 rounded-sm cursor-pointer"
-        >
-          1
-        </button>
-      );
-      pageButtons.push(
-        <span className="pt-2 pl-1" key="dots1">
-          ...
-        </span>
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageButtons.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          disabled={i === currentPage}
-          className={`p-3 bg-[#EB4A4A] text-white border-none ml-2  rounded-sm cursor-pointer ${
-            i === currentPage ? "opacity-50 pointer-events-none" : ""
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage === totalPages - 1) {
-      pageButtons.push(
-        <button
-          key={totalPages}
-          onClick={() => handlePageChange(totalPages)}
-          className="p-3 bg-[#EB4A4A] text-white border-none rounded-sm ml-2 cursor-pointer"
-        >
-          {totalPages}
-        </button>
-      );
-    } else if (endPage < totalPages - 1) {
-      pageButtons.push(
-        <span className="pt-2 pl-1" key="dots2">
-          ...
-        </span>
-      );
-      pageButtons.push(
-        <button
-          key={totalPages}
-          onClick={() => handlePageChange(totalPages)}
-          className="p-3 bg-[#EB4A4A] text-white border-none ml-2 rounded-sm cursor-pointer"
-        >
-          {totalPages}
-        </button>
-      );
-    }
-
-    return pageButtons;
-  };
-
   return (
     <>
       <Head>
@@ -156,7 +83,11 @@ const index = () => {
       <div>
         <Navbar />
       </div>
-      <div className="flex flex-col md:flex-row justify-between mx-10 pt-32 items-center">
+      <div
+        className={`${
+          isLoading ? "bg-white" : ""
+        } flex flex-col md:flex-row justify-between px-10 pt-32 md:items-center`}
+      >
         <div className=" md:text-4xl flex items-center">
           <div>
             <FaGripLinesVertical className="text-[#EB4A4A] mt-1 md:mt-0 text-[4rem]" />
@@ -166,7 +97,7 @@ const index = () => {
             <p className="text-sm ml-0 md:ml-1">Ready For Review</p>
           </div>
         </div>
-        <div className="relative mt-5 md:mt-0 w-11/12 md:w-7/12">
+        <div className="relative mt-5 md:mt-0 w-11/12 md:w-7/12 mx-auto">
           <div className="absolute top-[0.9rem] left-2">
             <FaSearch className="opacity-25" />
           </div>
@@ -181,7 +112,7 @@ const index = () => {
         </div>
       </div>
       {isLoading ? (
-        <div className="mt-16">
+        <div className="pt-16 bg-white">
           <SpinnerLoading />
         </div>
       ) : (
@@ -198,9 +129,21 @@ const index = () => {
             )}
           </div>
           {keyword === "" && (
-            <div className="flex justify-between my-14 items-center px-4 md:px-20 py-5 bg-white shadow-sm">
-              <div>page {currentPage} of 50</div>
-              <div>{RenderPageButtons()}</div>
+            <div className="md:flex md:justify-between my-14 items-center px-4 md:px-20 py-5 bg-white shadow-sm">
+              <div className="text-center md:text-start">
+                page {currentPage} of 50
+              </div>
+              <Pagination
+                showControls
+                total={50}
+                initialPage={1}
+                classNames={{
+                  item: "font-bold",
+                }}
+                color="danger"
+                page={currentPage}
+                onChange={(p) => handlePageChange(p)}
+              />
             </div>
           )}
           <div>

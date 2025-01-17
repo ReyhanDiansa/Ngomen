@@ -1,40 +1,43 @@
 import axios from "axios";
 import { getTokenCookie } from "./HandleCookie";
-import  jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
-export const GetPopularMusic = async () => {
-    const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&page=1&method=chart.gettoptracks`;
-    try {
-      const response = await axios.get(url);
-      return { data: response };
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to fetch data" };
-    }
+export const GetPopularMusic = async ({ currentPage}) => {
+
+  const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&page=${currentPage}&limit=15&method=chart.gettoptracks`;
+  
+  try {
+    const response = await axios.get(url);
+    return { data: response.data }; 
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch data" };
+  }
 }
 
-export const GetAllMusic = async ({musicPage}) => {
-    const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&page=${musicPage}&method=chart.gettoptracks`;
-    try {
-      const response = await axios.get(url);
-      return { data: response };
-    } catch (error) {
-      console.error(error);
-      return { error: "Failed to fetch data" };
-    }
-}
 
-export const GetMusicDetail = async ({MusicDetail}) =>{
-    const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&method=track.getInfo&track=${MusicDetail?.name}&artist=${MusicDetail?.artist?.name}`;
-    // console.log("ur",url);
-    try {
-        const response = await axios.get(url);
-        return { data: response };
-      } catch (error) {
-        console.error(error);
-        return { error: "Failed to fetch data" };
-      }
-}
+export const GetAllMusic = async ({ musicPage }) => {
+  const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&page=${musicPage}&limit=15&method=chart.gettoptracks`;
+  try {
+    const response = await axios.get(url);
+    return { data: response };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch data" };
+  }
+};
+
+export const GetMusicDetail = async ({ MusicDetail }) => {
+  const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&method=track.getInfo&track=${MusicDetail?.name}&artist=${MusicDetail?.artist?.name}`;
+  // console.log("ur",url);
+  try {
+    const response = await axios.get(url);
+    return { data: response };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch data" };
+  }
+};
 
 export const CheckMusicReview = async ({ musicId }) => {
   const url = `${process.env.NEXT_PUBLIC_API_HOST}/musicRev/checkReview`;
@@ -42,16 +45,16 @@ export const CheckMusicReview = async ({ musicId }) => {
   const userData = jwt.decode(token);
 
   const data = {
-    user_id:userData?.googleId,
+    user_id: userData?.googleId,
     track: musicId?.track,
-    artist:musicId?.artist
+    artist: musicId?.artist,
   };
 
   try {
     const checkPerm = await axios.post(url, data);
     // console.log(checkPerm.data.add_permission);
     if (checkPerm.data.success === true) {
-      return { data: checkPerm.data};
+      return { data: checkPerm.data };
     } else {
       return { data: checkPerm.data };
     }
@@ -69,7 +72,7 @@ export const AddMusicReview = async ({ reviewData }) => {
     rate: reviewData.rate,
     comment: reviewData.comment,
     artist: reviewData.artist,
-    track:reviewData.track
+    track: reviewData.track,
   };
   const options = {
     headers: {
@@ -97,11 +100,11 @@ export const GetReviewMusById = async ({ reviewId }) => {
   }
 };
 
-export const GetReviewByMusicId = async ({ musicId }) => {
-  const url = `${process.env.NEXT_PUBLIC_API_HOST}/musicRev/findByMusicId`;
+export const GetReviewByMusicId = async ({ musicId, currentPage }) => {
+  const url = `${process.env.NEXT_PUBLIC_API_HOST}/musicRev/findByMusicId?page=${currentPage}`;
   const dataMovie = {
     track: musicId.track,
-    artist:musicId.artist
+    artist: musicId.artist,
   };
   try {
     const data = await axios.post(url, dataMovie);
@@ -115,7 +118,7 @@ export const GetReviewByMusicId = async ({ musicId }) => {
   }
 };
 
-export const GetMusicByTitle = async ({musicKeyword}) => {
+export const GetMusicByTitle = async ({ musicKeyword }) => {
   const url = `${process.env.NEXT_PUBLIC_API_MUSIC}/?api_key=${process.env.NEXT_PUBLIC_MUSIC_API_KEY}&format=json&track=${musicKeyword}&method=track.search`;
   try {
     const response = await axios.get(url);
@@ -124,4 +127,4 @@ export const GetMusicByTitle = async ({musicKeyword}) => {
     console.error(error);
     return { error: "Failed to fetch data" };
   }
-}
+};

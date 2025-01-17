@@ -5,22 +5,27 @@ import AddReviewMus from "@/components/MusicModal/AddReviewMus";
 import { FaCheck } from "react-icons/fa";
 import { CheckMusicReview } from "@/utils/MusicAPI";
 import { CheckMovieReview } from "../../utils/MovieAPI";
+import SpinnerLoading from "../Loading/SpinnerLoading";
 
 const AddReviewButton = ({ type, checkId, itemDetail }) => {
   const [checkResponse, setCheckResponse] = useState();
   const [isModalMovieOpen, setIsModalMovieOpen] = useState(false);
   const [isModalMusicOpen, setIsModalMusicOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const token = getTokenCookie();
   useEffect(() => {
+    setIsLoading(true);
     const fetchToken = async () => {
       if (token !== null || token !== undefined) {
         if (type === "movie") {
           const fetchCheck = await CheckMovieReview({ movieId: checkId });
           setCheckResponse(fetchCheck);
+          setIsLoading(false);
         } else if (type === "music") {
           const fetchCheck = await CheckMusicReview({ musicId: checkId });
           setCheckResponse(fetchCheck);
+          setIsLoading(false);
         }
       }
     };
@@ -51,7 +56,7 @@ const AddReviewButton = ({ type, checkId, itemDetail }) => {
       return (
         <AddReviewMus
           isOpen={isModalMusicOpen}
-          onClose={closeModalMusic}
+          onClose={() => closeModalMusic()}
           musicId={checkId}
         />
       );
@@ -67,6 +72,16 @@ const AddReviewButton = ({ type, checkId, itemDetail }) => {
       setIsModalMovieOpen(true);
     }
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <button className="bg-transparent px-3 hover:bg-[#EB4A4A] hover:text-white border-2 border-[#EB4A4A]">
+          <SpinnerLoading />
+        </button>
+      </>
+    );
+  }
 
   if (
     token === null ||

@@ -10,7 +10,7 @@ const AddReviewMus = ({ isOpen, onClose, musicId }) => {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSendMusic = async () => {
+  const handleSend = async () => {
     setButtonLoading(true);
     const data = {
       rate,
@@ -30,8 +30,8 @@ const AddReviewMus = ({ isOpen, onClose, musicId }) => {
         setTimeout(() => {
           setIsSuccess(false);
           onClose();
+          window.location.reload();
         }, 5000);
-        console.log("berhasil");
       } catch (error) {
         setErrorMessage("");
         setIsSuccess(false);
@@ -71,9 +71,7 @@ const AddReviewMus = ({ isOpen, onClose, musicId }) => {
             <div class="ml-3 text-sm font-medium">
               Success Add Music Review
               <p className="text-xs">
-                You will automatic redirect to previous page and
-                {" "}
-                <span className="font-bold"> Please refresh the page!!!</span>
+                You will automatic redirect to previous page
               </p>
             </div>
           </div>
@@ -167,7 +165,7 @@ const AddReviewMus = ({ isOpen, onClose, musicId }) => {
         <div className="flex gap-5 mt-8">
           <button
             className="mt-4 py-2 px-4 bg-transparant border-2 border-[#EB4A4A] text-black rounded-md flex gap-1 items-center"
-            onClick={handleSendMusic}
+            onClick={handleSend}
           >
             {buttonLoading ? (
               <>

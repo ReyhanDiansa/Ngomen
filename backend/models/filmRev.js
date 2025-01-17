@@ -10,7 +10,7 @@ const filmSchema = mongoose.Schema({
     required: true,
   },
   rate: {
-    type: String,
+    type: mongoose.Schema.Types.Decimal128,
     required: true,
   },
   comment: {

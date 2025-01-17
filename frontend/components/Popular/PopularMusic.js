@@ -11,9 +11,13 @@ const PopularMusic = () => {
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     setIsLoading(true);
+    let currentPage = 1;
+
     const fetchData = async () => {
-      const { data } = await GetPopularMusic();
-      setPopular(data.data.tracks?.track?.slice(0, 5));
+      const { data } = await GetPopularMusic({ currentPage });
+      console.log('kk', data);
+      
+      setPopular(data?.tracks?.track?.slice(0, 5));
     };
     fetchData();
   }, []);

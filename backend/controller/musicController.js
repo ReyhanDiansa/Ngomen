@@ -60,26 +60,58 @@ exports.addReview = async (request, response) => {
 
 exports.getMusicRev = async (request, response) => {
   try {
-    const musReview = await MusicModel.find();
-    if (musReview.length === 0) {
+    const { page = 1, limit = 10 } = request.query;
+    const skip = (page - 1) * limit;
+
+    const musReview = await MusicModel.find()
+      .skip(skip)
+      .limit(limit);
+
+    const countTotalReviews = await MusicModel.countDocuments();
+
+    if (countTotalReviews === 0) {
       return response
         .status(200)
         .json({ message: "tidak ada review", success: false });
     }
 
-    const data = [];
+    const data = await Promise.all(
+      musReview.map(async (review) => {
+        const user = await userModel.findOne({ googleId: review.user_id });
+        return { review, user };
+      })
+    );
 
-    for (const review of musReview) {
-      const user = await userModel.findOne({
-        googleId: review.user_id,
+    const totalPages = Math.ceil(countTotalReviews / limit);
+
+    if (page > totalPages) {
+      return response.status(400).json({
+        message: "Page exceed total pages",
+        success: false,
       });
-      const reviewAndUser = { review: review, user: user };
-      data.push(reviewAndUser);
     }
 
-    return response.status(200).json({ data, success: true });
+    const meta = {
+      total_items: parseInt(countTotalReviews),
+      current_page: parseInt(page),
+      total_pages: parseInt(totalPages),
+      per_page: parseInt(limit),
+    };
+
+    const result = {
+      data,
+      meta,
+    };
+
+    return response
+      .status(200)
+      .json({
+        result,
+        message: "sukses menampilkan data",
+        success: true,
+      });
   } catch (error) {
-    return response.status(400).json({ message: error, success: false });
+    return response.status(500).json({ message: error.message, success: false });
   }
 };
 
@@ -99,7 +131,7 @@ exports.findMusicRev = async (request, response) => {
 
     return response.status(200).json({ data, success: true });
   } catch (error) {
-    return response.status(400).json({ message: error, success: false });
+    return response.status(400).json({ message: error.message, success: false });
   }
 };
 
@@ -153,7 +185,7 @@ exports.deleteMusicRev = async (request, response) => {
       .status(200)
       .json({ message: "Success delete movie review", success: true });
   } catch (error) {
-    return response.status(400).json({ message: error, success: false });
+    return response.status(400).json({ message: error.message, success: false });
   }
 };
 
@@ -191,50 +223,129 @@ exports.getMusicRevById = async (request, response) => {
   try {
     const artist = request.body.artist;
     const track = request.body.track;
+    const { page = 1, limit = 10 } = request.query;
+    const skip = (page - 1) * limit;
     const musicID = `${artist}_${track}`;
-    const musReview = await MusicModel.find({ music_id: musicID });
-    if (musReview.length === 0) {
+    const musReview = await MusicModel.find({ music_id: musicID })
+      .skip(skip)
+      .limit(limit);
+
+    const countMovReview = await MusicModel.countDocuments({ music_id:musicID });
+
+    if (countMovReview === 0) {
       return response
         .status(200)
         .json({ message: "tidak ada review", success: false });
     }
-    const data = [];
 
-    for (const review of musReview) {
-      const user = await userModel.findOne({
-        googleId: review.user_id,
+    const data = await Promise.all(
+      musReview.map(async (review) => {
+        const user = await userModel.findOne({ googleId: review.user_id });
+        return { review, user };
+      })
+    );
+    // Calculate average rate
+    const avgRateData = await MusicModel.aggregate([
+      { $match: { music_id:musicID } },
+      { $group: { _id: null, averageRate: { $avg: "$rate" } } },
+    ]);
+
+    const averageRate = parseFloat(avgRateData[0]?.averageRate).toFixed(1) || 0;
+    const totalPages = Math.ceil(countMovReview / limit);
+
+    if (page > totalPages) {
+      return response.status(400).json({
+        message: "Page exceed total pages",
+        success: false,
       });
-      const reviewAndUser = { review: review, user: user };
-      data.push(reviewAndUser);
     }
 
-    response.status(200).json({ data, success: true });
+    const meta = {
+      total_items: parseInt(countMovReview),
+      current_page: parseInt(page),
+      total_pages: parseInt(totalPages),
+      per_page: parseInt(limit),
+    };
+
+    const result = {
+      data,
+      meta,
+    };
+
+    return response
+      .status(200)
+      .json({
+        result,
+        averageRate: parseFloat(averageRate),
+        message: "sukses menampilkan data",
+        success: true,
+      });
   } catch (error) {
-    response.status(400).json({ message: error, success: false });
+    return response.status(500).json({ message: error.message, success: false });
   }
 };
 
 exports.getMusicRevByIdUser = async (request, response) => {
   try {
     const user_id = request.body.user_id;
-    const musReview = await MusicModel.find({ user_id: user_id });
-    if (musReview.length === 0) {
+    const { page = 1, limit = 10 } = request.query;
+    const skip = (page - 1) * limit;
+
+    const musReview = await MusicModel.find({ user_id: user_id })
+      .skip(skip)
+      .limit(limit);
+
+    const countUserReview = await MusicModel.countDocuments({ user_id: user_id });
+
+    if (countUserReview === 0) {
       return response
         .status(200)
         .json({ message: "tidak ada review", success: false });
     }
-    const data = [];
 
-    for (const review of musReview) {
-      const user = await userModel.findOne({
-        googleId: review.user_id,
+    const data = await Promise.all(
+      musReview.map(async (review) => {
+        const user = await userModel.findOne({ googleId: review.user_id });
+        return { review, user };
+      })
+    );
+
+    const avgRateData = await MusicModel.aggregate([
+      { $match: { user_id: user_id } },
+      { $group: { _id: null, averageRate: { $avg: "$rate" } } },
+    ]);
+
+    const averageRate = parseFloat(avgRateData[0]?.averageRate).toFixed(1) || 0;
+    const totalPages = Math.ceil(countUserReview / limit);
+
+    if (page > totalPages) {
+      return response.status(400).json({
+        message: "Page exceed total pages",
+        success: false,
       });
-      const reviewAndUser = { review: review, user: user };
-      data.push(reviewAndUser);
     }
 
-    response.status(200).json({ data, success: true });
+    const meta = {
+      total_items: parseInt(countUserReview),
+      current_page: parseInt(page),
+      total_pages: parseInt(totalPages),
+      per_page: parseInt(limit),
+    };
+
+    const result = {
+      data,
+      meta,
+    };
+
+    return response
+      .status(200)
+      .json({
+        result,
+        averageRate: parseFloat(averageRate),
+        message: "sukses menampilkan data",
+        success: true,
+      });
   } catch (error) {
-    response.status(400).json({ message: error, success: false });
+    return response.status(500).json({ message: error.message, success: false });
   }
 };

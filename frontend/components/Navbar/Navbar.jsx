@@ -179,7 +179,8 @@ const Navbar = () => {
                       <Link href={item.url}>
                         <p
                           className={`my-5 py-5 text-center ${
-                            router.pathname === item.url
+                            activeMenuItem &&
+                        activeMenuItem.id === item.id 
                               ? "text-[#EB4A4A] text-lg font-semibold"
                               : ""
                           }`}

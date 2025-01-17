@@ -35,6 +35,8 @@ const index = () => {
   };
 
   useEffect(() => {
+    if (!tracks || !artist) return;
+
     const fetchToken = async () => {
       try {
         const { data } = await GetMusicDetail({ MusicDetail: dataMusic });
@@ -50,7 +52,7 @@ const index = () => {
         setIsLoading(false);
       }, 3000);
     }
-  }, [musicId]);
+  }, [tracks, artist]);
 
   const seconds = Math.floor((musicDetail?.duration / 1000) % 60);
   const minutes = Math.floor((musicDetail?.duration / 1000 / 60) % 60);
@@ -98,7 +100,7 @@ const index = () => {
       <Navbar />
       <div className="pt-10 md:pt-20">
         {isLoading ? (
-          <div className="pt-10">
+          <div className="pt-10 bg-white">
             <SpinnerLoading />
           </div>
         ) : (
@@ -218,7 +220,7 @@ const index = () => {
                       {musicDetail?.toptags?.tag?.map((item, index) => (
                         <p
                           key={index}
-                          className="px-2 py-1 bg-[#fde3e3] rounded-lg"
+                          className="px-2 py-1 bg-[#fde3e3] rounded-lg border-2 border-red-600"
                         >
                           {item.name}
                         </p>

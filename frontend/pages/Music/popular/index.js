@@ -6,22 +6,27 @@ import MusicCard from "@/components/MusicCard/MusicCard";
 import SpinnerLoading from "@/components/Loading/SpinnerLoading";
 import Footer from "@/components/Footer/Footer";
 import Head from "next/head";
+import { Pagination } from "@nextui-org/react";
 
 const index = () => {
   const [trending, setTrending] = useState();
   const [detailPop, setDetailPop] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState();
 
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
-      const { data } = await GetPopularMusic();
-      setTrending(data.data.tracks?.track);
+      const { data } = await GetPopularMusic({ currentPage });
+      const skip = (currentPage - 1) * 15;
+      
+      let response;
+      if(data?.tracks?.track?.length > 15){
+        response = data?.tracks?.track.slice(skip, skip + 15);
+      } else {
+        response = data?.tracks?.track
+      }
+      setTrending(response);
     };
     fetchData();
   }, [currentPage]);
@@ -33,10 +38,8 @@ const index = () => {
         return data;
       });
       const results = await Promise.all(fetchPromises);
-      setDetailPop(results?.slice(startIndex, endIndex));
-      const totalItems = trending?.length;
-      const totalPages = Math.ceil(totalItems / pageSize);
-      setTotalPages(totalPages);
+      
+      setDetailPop(results);
     };
     if (trending && trending.length > 0) {
       fetchDetail();
@@ -48,84 +51,6 @@ const index = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-  };
-
-  const RenderPageButtons = () => {
-    const pageButtons = [];
-
-    let startPage = Math.max(1, currentPage - 1);
-    let endPage = Math.min(totalPages, currentPage + 1);
-
-    if (startPage === 2) {
-      pageButtons.push(
-        <button
-          key={1}
-          onClick={() => handlePageChange(1)}
-          className="p-3 bg-[#EB4A4A] text-white border-none ml-2 rounded-sm cursor-pointer"
-        >
-          1
-        </button>
-      );
-    } else if (startPage > 2) {
-      pageButtons.push(
-        <button
-          key={1}
-          onClick={() => handlePageChange(1)}
-          className="p-3 bg-[#EB4A4A] text-white border-none ml-2 rounded-sm cursor-pointer"
-        >
-          1
-        </button>
-      );
-      pageButtons.push(
-        <span className="pt-2 pl-1" key="dots1">
-          ...
-        </span>
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageButtons.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          disabled={i === currentPage}
-          className={`p-3 bg-[#EB4A4A] text-white border-none ml-2  rounded-sm cursor-pointer ${
-            i === currentPage ? "opacity-50 pointer-events-none" : ""
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage === totalPages - 1) {
-      pageButtons.push(
-        <button
-          key={totalPages}
-          onClick={() => handlePageChange(totalPages)}
-          className="p-3 bg-[#EB4A4A] text-white border-none rounded-sm ml-2 cursor-pointer"
-        >
-          {totalPages}
-        </button>
-      );
-    } else if (endPage < totalPages - 1) {
-      pageButtons.push(
-        <span className="pt-2 pl-1" key="dots2">
-          ...
-        </span>
-      );
-      pageButtons.push(
-        <button
-          key={totalPages}
-          onClick={() => handlePageChange(totalPages)}
-          className="p-3 bg-[#EB4A4A] text-white border-none ml-2 rounded-sm cursor-pointer"
-        >
-          {totalPages}
-        </button>
-      );
-    }
-
-    return pageButtons;
   };
 
   return (
@@ -147,14 +72,18 @@ const index = () => {
       <div>
         <Navbar />
       </div>
-      <div className="text-2xl md:text-4xl ml-10 pt-32 flex">
+      <div
+        className={`${
+          isLoading ? "bg-white" : ""
+        } text-2xl md:text-4xl pl-10 pt-32 flex`}
+      >
         <div className="flex">
-          <FaGripLinesVertical className="text-[#EB4A4A] mt-1 md:mt-0" />
+          <FaGripLinesVertical className="text-[#EB4A4A] pt-1 md:mt-0" />
           <h2>Popular Music's</h2>
         </div>
       </div>
       {isLoading ? (
-        <div className="mt-16">
+        <div className="pt-16 bg-white">
           <SpinnerLoading />
         </div>
       ) : (
@@ -166,13 +95,25 @@ const index = () => {
               </div>
             ))}
           </div>
-          <div className="flex justify-between my-14 items-center px-4 md:px-20 py-5 bg-white shadow-sm">
+          <div className="md:flex justify-center md:justify-between my-14 items-center px-4 md:px-20 py-5 bg-white shadow-sm">
             <div>
-              <p>
-                Page {currentPage} of {totalPages}
+              <p className="text-center md:text-start">
+                Page {currentPage} of 50
               </p>
             </div>
-            <div className="justify-end">{RenderPageButtons()}</div>
+            <div>
+              <Pagination
+                showControls
+                total={50}
+                initialPage={1}
+                classNames={{
+                  item: "font-bold",
+                }}
+                color="danger"
+                page={currentPage}
+                onChange={(p) => handlePageChange(p)}
+              />
+            </div>
           </div>
           <div>
             <Footer />

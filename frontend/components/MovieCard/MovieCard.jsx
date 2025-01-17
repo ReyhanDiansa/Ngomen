@@ -24,13 +24,13 @@ const MovieCard = ({ movieDetail }) => {
               </div>
               <p className="pt-[2px]">{movieDetail.vote_average}</p>
             </div>
-            <div className="absolute bottom-0">
+            <div className="absolute bottom-0 w-11/12">
               <p className=" items-end text-gray-400 px-2 ">
                 {movieDetail.title} ({year})
               </p>
               {/* <p className=" items-end text-gray-400 px-2 ">{year}</p> */}
               {movieDetail?.overview !== "" && (
-                <p className="text-white items-end px-2 pt-2 pb-3 text-xs w-fit">
+                <p className="text-white items-end px-2 pt-2 pb-3 text-xs break-words	">
                   {movieDetail.overview.slice(0, 120) + "..."}
                 </p>
               )}

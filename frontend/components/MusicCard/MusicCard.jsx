@@ -17,7 +17,7 @@ const MusicCard = ({ MusicDetail }) => {
         <div className="relative group cursor-pointer w-[15rem] text-black">
           <Image
             src={imageError ? urlError : MusicDetail?.album?.image[3]["#text"]}
-            alt={MusicDetail?.name}
+            alt={MusicDetail?.name || "music poster"}
             width={240}
             height={240}
             className="rounded-md"
@@ -31,11 +31,11 @@ const MusicCard = ({ MusicDetail }) => {
               </div>
               <p className="pt-[2px]">{listener}</p>
             </div>
-            <div className="absolute bottom-0">
-              <p className="items-end text-gray-400 px-2">
+            <div className="absolute bottom-0 w-11/12">
+              <p className="items-end text-gray-400 px-2 w-fit">
                 {MusicDetail?.name} ({MusicDetail?.artist?.name})
               </p>
-              <p className="text-white items-end px-2 pt-2 pb-3 text-xs w-fit">
+              <p className="text-white items-end px-2 pt-2 pb-3 text-xs  break-words">
                 {MusicDetail?.wiki?.summary !== undefined &&
                   MusicDetail?.wiki?.summary?.slice(0, 120) + "..."}
               </p>

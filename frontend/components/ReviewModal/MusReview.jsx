@@ -45,7 +45,7 @@ const ReviewModalMus = ({ reviewId, isOpen, onClose }) => {
                 <p>•</p>
                 <div className="flex items-center gap-2">
                   <FaRegStar className="font-bold" />
-                  <p>{detailReview?.review?.rate}</p>
+                  <p>{detailReview?.review?.rate?.$numberDecimal}</p>
                 </div>
               </div>
               <div className="mx-3 my-4 w-11/12 break-words">

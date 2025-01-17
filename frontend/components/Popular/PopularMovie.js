@@ -28,7 +28,7 @@ const PopularMovie = () => {
     <div className="py-14">
       <div className="flex justify-end p-3 mr-10 md:mr-20">
         <Link
-          href={"/Movie/popular/1"}
+          href={"/Movie/popular"}
           className="cursor-pointer flex  gap-1  items-center"
         >
           <p>

@@ -29,6 +29,7 @@ const AddReviewMov = ({ movieDetail, isOpen, onClose, movieId }) => {
         setTimeout(() => {
           setIsSuccess(false);
           onClose();
+          window.location.reload();
         }, 5000);
       } catch (error) {
         setErrorMessage("");
@@ -69,8 +70,7 @@ const AddReviewMov = ({ movieDetail, isOpen, onClose, movieId }) => {
             <div class="ml-3 text-sm font-medium">
               Success Add Movie Review
               <p className="text-xs">
-                You will automatic redirect to previous page and{" "}
-                <span className="font-bold">Please refresh the page!!!</span>
+                You will automatic redirect to previous page
               </p>
             </div>
           </div>
